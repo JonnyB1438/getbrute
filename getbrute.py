@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 class GetBrute:
 
-    def __init__(self, url, param, dictionary, find_string, end_of_value=''):
+    def __init__(self, url, param, dictionary, find_string, end_of_value='', result_file=None):
         self.url = url
         # TODO test exist param
         self.param = param
@@ -15,6 +15,10 @@ class GetBrute:
         self.dictionary = dictionary
         self.find_string = find_string
         self.end_of_value = end_of_value
+        self.result_file = result_file
+        if self.result_file is not None:
+            with open(self.result_file, 'w') as file:
+                pass
 
 
     def brute_param(self):
@@ -47,6 +51,9 @@ class GetBrute:
                             if html_data.decode('utf8').find(self.find_string) > -1:
                                 print('Founded')
                                 result.append(get_url)
+                                if self.result_file is not None:
+                                    with open(self.result_file, 'a', encoding='utf8') as file:
+                                        file.write(get_url + '\n')
                                 print(len(html_data))
                                 print((html_data))
                         except:
@@ -62,7 +69,6 @@ class GetBrute:
 
         else:
             print('The param is not found in URL.')
-
         return result
 
         print(index)
@@ -72,12 +78,13 @@ class GetBrute:
 if __name__ == '__main__':
     url = 'http://80.249.131.31:8084/?file=temp.txt'
     param = 'file'
-    # dictionary = 'wordlist_test.txt'
-    dictionary = 'wordlists/directory-list-2.3-small.txt'
+    dictionary = 'wordlist_test.txt'
+    # dictionary = 'wordlists/directory-list-2.3-small.txt'
     end_of_value = '.txt'
     find_string = 'Имя Файла:'
-    # new_brute = GetBrute(url=url, param=param, dictionary=dictionary, find_string=find_string, end_of_value=end_of_value)
-    new_brute = GetBrute(url=url, param=param, dictionary=dictionary, find_string=find_string)
+    result_file = 'result.txt'
+    new_brute = GetBrute(url=url, param=param, dictionary=dictionary, find_string=find_string, end_of_value=end_of_value, result_file=result_file)
+    # new_brute = GetBrute(url=url, param=param, dictionary=dictionary, find_string=find_string, result_file=result_file)
     result = new_brute.brute_param()
     pprint(f'Brute result:{result}')
     # print(f'Test run: {new_brute}')
