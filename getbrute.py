@@ -1,19 +1,16 @@
 import os
 from pprint import pprint
 from time import sleep
+from urllib.parse import urlsplit, parse_qsl
 from urllib.request import urlopen
 
 
 class GetBrute:
 
-    def __init__(self, url, param, dictionary, not_exists_string, end_of_value='', result_file=None):
-        self.url = url
-        # TODO test exist param
-        self.param = param
-        # TODO test exist dictionary
+    def __init__(self, request, dictionary, not_exists_string, result_file=None):
+        self.request = request
         self.dictionary = dictionary
         self.not_exists_string = not_exists_string
-        self.end_of_value = end_of_value
         self.result_file = result_file
         if self.result_file is not None:
             with open(self.result_file, 'w') as file:
@@ -21,24 +18,23 @@ class GetBrute:
 
 
     def brute_param(self):
-        # TODO add start search from '?' ; scheme, netloc, path, query, fragment = urlsplit(link)
-        index = self.url.find(self.param)
-        if index > 0 and (self.url[index - 1] == '?' or self.url[index -1] == '&') and self.url[index + len(param)] ==  '=':
-            start_url = self.url[:index]
-            if self.url.find('&', index) < 0:
+        index = self.request.url.find(self.request.brute_param)
+        if index > 0 and (self.request.url[index - 1] == '?' or self.request.url[index -1] == '&') and self.request.url[index + len(self.request.brute_param)] ==  '=':
+            start_url = self.request.url[:index]
+            if self.request.url.find('&', index) < 0:
                 end_url = ''
             else:
-                end_url = self.url[self.url.find('&', index):]
+                end_url = self.request.url[self.request.url.find('&', index):]
             print(f'Start URL: {start_url}')
             print(f'End URL: {end_url}')
             result = []
             print(type(result))
             index = 1
-            with open(self.dictionary, 'r', encoding='cp1251') as dict_file:
+            with open(self.dictionary.path, 'r', encoding=self.dictionary.coding) as dict_file:
                 for line in dict_file:
                     # TODO test HTTP answer
-                    value = line[:-1] + self.end_of_value
-                    get_url = f'{start_url}{self.param}={value}{end_url}'
+                    value = line[:-1] + self.dictionary.added_ending
+                    get_url = f'{start_url}{self.request.brute_param}={value}{end_url}'
                     print(f'{index:>6}: {get_url}')
                     index += 1
                     loading_attempt = 3
@@ -72,19 +68,50 @@ class GetBrute:
         print(index)
         pass
 
+class Dictionary:
+    def __init__(self, path, coding = 'utf-8', added_ending = ''):
+        self.path = path
+        self.coding = coding
+        self.added_ending = added_ending
+    # TODO test of existing dictionary
+    pass
+
+class RequestParams:
+    def __init__(self, url, brute_param):
+        self.url = url
+        self.brute_param = brute_param
+        scheme, netloc, path, query, fragment = urlsplit(url)
+        # params = parse_qsl(query)
+        # url_part = scheme + r'://' + netloc + path + '?'
+        # for param in params:
+        #     url_part += param[0] + '='
+        #     if param[0] == self.brute_param:
+        #         self.url_start = url_part
+        #         url_part = ''
+        #         kk
+        #         break
+        #     url_part += param[1] + '&'
+        # else:
+        #     raise Exception('The param of brute not exists in URL')
+        # if fragment:
+        #     self.url_start += '#' + fragment
+
+
 
 if __name__ == '__main__':
     url = 'http://80.249.131.31:8084/?file=temp.txt'
     param = 'file'
-    # dictionary = 'wordlist_test.txt'
-    dictionary = 'wordlists/directory-list-2.3-small.txt'
-    end_of_value = '.txt'
-    # exists_string = 'Имя Файла:'
     not_exists_string = 'не найден'
     result_file = 'result.txt'
-    new_brute = GetBrute(url=url, param=param, dictionary=dictionary, not_exists_string=not_exists_string, end_of_value=end_of_value, result_file=result_file)
-    # new_brute = GetBrute(url=url, param=param, dictionary=dictionary, not_exists_string=not_exists_string, result_file=result_file)
-    result = new_brute.brute_param()
-    pprint(f'Brute result:{result}')
-    # print(f'Test run: {new_brute}')
-    pass
+    # dictionary = 'wordlist.txt'
+    # dictionary = 'wordlists/directory-list-2.3-small.txt'
+    # exists_string = 'Имя Файла:'
+    try:
+        request = RequestParams(url=url, brute_param=param)
+        dictionary = Dictionary(path='wordlist.txt', coding='cp1251', added_ending='')
+    except Exception as exc:
+        print(exc)
+    else:
+        new_brute = GetBrute(request=request, dictionary=dictionary, not_exists_string=not_exists_string, result_file=result_file)
+        result = new_brute.brute_param()
+        pprint(f'Brute result:{result}')
