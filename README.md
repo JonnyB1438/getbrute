@@ -1,2 +1,2 @@
 # getbrute
-Brutforce HTTP Get with dictionary
+Bruteforce HTTP Get with dictionary
