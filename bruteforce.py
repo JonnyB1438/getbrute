@@ -13,13 +13,19 @@ from source.url_preparation import UrlPreparation
 # TODO add tuning request waiting time
 
 if __name__ == '__main__':
-    url = 'http://80.249.131.31:8084/?file=temp.txt'
-    param = 'file'
-    nonexistent_string = 'не найден'
+    # url = 'http://80.249.131.31:8084/?file=temp.txt'
+    url = 'https://ctf.school:5003/?login=admin&password=1234'
+    # "+and+1%3D1%23
+    # param = 'file'
+    param = 'password'
+    # nonexistent_string = 'не найден'
+    nonexistent_string = 'Login page'
     result_file = 'result.txt'
+    # wordlist = 'wordlist.txt'
+    wordlist = 'rdp_passlist.txt'
     try:
         request = UrlPreparation(url=url, brute_param=param)
-        dictionary = iter(Dictionary(path='wordlist.txt', coding='cp1251', added_ending=''))
+        dictionary = iter(Dictionary(path=wordlist, coding='cp1251', added_ending=''))
     except Exception as exc:
         print(exc)
     else:
