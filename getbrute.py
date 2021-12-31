@@ -1,7 +1,7 @@
 from pprint import pprint
 
 from source.brute import Brute
-from source.dictionary import Dictionary
+from source.wordlist import Wordlist
 from source.url_preparation import UrlPreparation
 
 # TODO multithreading
@@ -17,18 +17,19 @@ if __name__ == '__main__':
     url = 'https://ctf.school:5003/?login=admin&password=1234'
     # "+and+1%3D1%23
     # param = 'file'
-    param = 'password'
+    params = ['password']
     # nonexistent_string = 'не найден'
     nonexistent_string = 'Login page'
     result_file = 'result.txt'
     # wordlist = 'wordlist.txt'
-    wordlist = 'wordlist_test.txt'
+    wordlists = 'wordlist_test.txt'
     try:
-        request = UrlPreparation(url=url, brute_param=param)
-        dictionary = iter(Dictionary(path=wordlist, coding='cp1251', added_ending=''))
+        parsed_url = UrlPreparation(url=url, brute_params=params)
+        wordlist = iter(Wordlist(path=wordlists, coding='cp1251', added_ending=''))
     except Exception as exc:
         print(exc)
     else:
-        new_brute = Brute(request=request, nonexistent_string=nonexistent_string)
-        result = new_brute.get_brute(dictionary=dictionary, result_file=result_file)
-        pprint(f'Brute result:{result}')
+        new_brute = Brute(parsed_url=parsed_url, nonexistent_string=nonexistent_string, result_file=result_file)
+        for param in params:
+            result = new_brute.get_brute(wordlist=wordlist, param=param)
+            pprint(f'Brute result:{result}')

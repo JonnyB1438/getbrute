@@ -1,6 +1,6 @@
 import os
 
-class Dictionary:
+class Wordlist:
     def __init__(self, path, coding = 'utf-8', added_ending = ''):
         if not os.path.exists(path):
             raise Exception('The dictionary file does not exist!')

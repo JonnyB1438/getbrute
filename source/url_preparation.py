@@ -1,15 +1,17 @@
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 class UrlPreparation:
-    def __init__(self, url, brute_param):
-        self._brute_param = brute_param
+    def __init__(self, url, brute_params):
+        self._brute_params = brute_params
         self._parse_url = urlparse(url)
         self._params = parse_qs(self._parse_url.query)
-        if self._brute_param not in self._params:
-            raise Exception('The param of brute not exists in URL')
+        for param in self._brute_params:
+            print(param)
+            if param not in self._params:
+                raise Exception(f'{param} - This param of a bruteforce does not exist in the URL!')
 
-    def get_new_url(self, value):
-        self._params[self._brute_param] = [value]
+    def change_param_value(self, param, value):
+        self._params[param] = [value]
         query = str(urlencode(self._params, True))
         new_url = urlunparse((self._parse_url.scheme, self._parse_url.netloc, self._parse_url.path, '',
                               query, self._parse_url.fragment))
