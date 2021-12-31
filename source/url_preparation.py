@@ -1,12 +1,12 @@
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 class UrlPreparation:
-    def __init__(self, url, brute_params):
-        self._brute_params = brute_params
+    def __init__(self, url):
         self._parse_url = urlparse(url)
         self._params = parse_qs(self._parse_url.query)
-        for param in self._brute_params:
-            print(param)
+
+    def check_params(self, params):
+        for param in params:
             if param not in self._params:
                 raise Exception(f'{param} - This param of a bruteforce does not exist in the URL!')
 
