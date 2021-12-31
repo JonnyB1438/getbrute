@@ -1,6 +1,7 @@
 from pprint import pprint
 from time import sleep
 from urllib.request import urlopen
+import ssl
 
 from source.dictionary import Dictionary
 from source.url_preparation import UrlPreparation
@@ -8,36 +9,37 @@ from source.url_preparation import UrlPreparation
 
 class Brute:
 
-    def __init__(self, request, dictionary, nonexistent_string, result_file=None):
+    def __init__(self, request, nonexistent_string):
         self.request = request
-        self.dictionary = dictionary
         self.nonexistent_string = nonexistent_string
-        self.result_file = result_file
-        if self.result_file is not None:
-            with open(self.result_file, 'w') as file:
-                pass
 
-    def get_brute(self):
+    def get_brute(self, dictionary, result_file):
+        dictionary = dictionary
+        result_file = result_file
+        if result_file is not None:
+            with open(result_file, 'w') as file:
+                pass
         result = []
         index = 1
+        ssl._create_default_https_context = ssl._create_unverified_context #to disable testing ssl
         while True:
             try:
-                value = next(self.dictionary)
+                value = next(dictionary)
+                print(f'Value is - {value}')
             except:
                 return result
             get_url = self.request.get_new_url(value)
             print(f'{index:>6}: {get_url}')
-            index += 1
             loading_attempt = 3
             while loading_attempt != 0:
                 try:
                     res = urlopen(get_url)
                     html_data = res.read()
                     if html_data.decode('utf8').find(self.nonexistent_string) == -1:
-                        print('Founded')
+                        print(f'Was founded a correct value of dictionary: {value}')
                         result.append(get_url)
-                        if self.result_file is not None:
-                            with open(self.result_file, 'a', encoding='utf8') as file:
+                        if result_file is not None:
+                            with open(result_file, 'a', encoding='utf8') as file:
                                 file.write(get_url + '\n')
                 except:
                     error_string = f'Error getting URL {get_url}'
@@ -49,6 +51,7 @@ class Brute:
                         sleep(1)
                 else:
                     loading_attempt = 0
+            index += 1
         #         TODO test HTTP answer
 
 if __name__ == '__main__':
@@ -62,6 +65,6 @@ if __name__ == '__main__':
     except Exception as exc:
         print(exc)
     else:
-        new_brute = Brute(request=request, dictionary=dictionary, nonexistent_string=nonexistent_string, result_file=result_file)
-        result = new_brute.get_brute()
+        new_brute = Brute(request=request, nonexistent_string=nonexistent_string)
+        result = new_brute.get_brute(dictionary=dictionary, result_file=result_file)
         pprint(f'Brute result:{result}')

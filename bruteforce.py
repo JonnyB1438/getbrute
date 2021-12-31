@@ -22,13 +22,13 @@ if __name__ == '__main__':
     nonexistent_string = 'Login page'
     result_file = 'result.txt'
     # wordlist = 'wordlist.txt'
-    wordlist = 'rdp_passlist.txt'
+    wordlist = 'wordlist_test.txt'
     try:
         request = UrlPreparation(url=url, brute_param=param)
         dictionary = iter(Dictionary(path=wordlist, coding='cp1251', added_ending=''))
     except Exception as exc:
         print(exc)
     else:
-        new_brute = Brute(request=request, dictionary=dictionary, nonexistent_string=nonexistent_string, result_file=result_file)
-        result = new_brute.get_brute()
+        new_brute = Brute(request=request, nonexistent_string=nonexistent_string)
+        result = new_brute.get_brute(dictionary=dictionary, result_file=result_file)
         pprint(f'Brute result:{result}')
