@@ -4,8 +4,6 @@ from urllib.request import urlopen
 import ssl
 
 from source.wordlist import Wordlist
-from source.url_preparation import UrlPreparation
-
 
 class Brute:
 
@@ -21,16 +19,10 @@ class Brute:
         ssl._create_default_https_context = ssl._create_unverified_context #to disable testing ssl
 
     def get_brute(self, set_of_params, count_params, counter):
-        wordlist = iter(Wordlist(path=set_of_params[counter][1], coding='cp1251', added_ending=''))
+        wordlist = Wordlist(path=set_of_params[counter][1], coding='cp1251', added_ending='')
         print(set_of_params[counter])
         print(set_of_params[counter][1])
-        while True:
-            try:
-                value = next(wordlist)
-                print(f'Value is - {value}')
-            except:
-                print('An error of getting value from a wordlist!')
-                return self.result
+        for value in wordlist.get_next_word():
             get_url = self._parsed_url.change_param_value(set_of_params[counter][0], value)
             print(f'{self.index:>6}: {get_url}')
             if counter < (count_params - 1):
@@ -64,19 +56,4 @@ class Brute:
         #         TODO test HTTP answer
 
 if __name__ == '__main__':
-    # url = 'http://80.249.131.31:8084/?file=temp.txt'
-    # params = ['file']
-    # nonexistent_string = 'не найден'
-    # result_file = 'result.txt'
-    # wordlists = 'wordlist_test.txt'
-    # try:
-    #     parsed_url = UrlPreparation(url=url, brute_params=params)
-    #     wordlist = iter(Wordlist(path=wordlists, coding='cp1251', added_ending=''))
-    # except Exception as exc:
-    #     print(exc)
-    # else:
-    #     new_brute = Brute(parsed_url=parsed_url, nonexistent_string=nonexistent_string, result_file=result_file)
-    #     for param in params:
-    #         result = new_brute.get_brute(wordlist=wordlists, param=param)
-    #         pprint(f'Brute result:{result}')
     pass
