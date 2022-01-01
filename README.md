@@ -1,2 +1,2 @@
 # getbrute
-Bruteforce HTTP Get with dictionary
+Bruteforce HTTP Get with wordlists for pentesters.
