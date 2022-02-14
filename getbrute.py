@@ -1,36 +1,46 @@
 from pprint import pprint
+import argparse
 
 from source.brute import Brute
 from source.url_preparation import UrlPreparation
 
-# TODO running with args
-# TODO using UserAgents for requests
-# TODO using HTTP headers
-# TODO using HTTP cookie, session
-# TODO add tuning delay between request
-# TODO add tuning request waiting time
-# TODO multithreading
-
 if __name__ == '__main__':
-    # settings:
-    url = 'https://ctf.school:5003/?login=adm&password=1234&third=realy'
-    # url = 'http://80.249.131.31:8084/?file=temp.txt'
-    params = ['login', 'password', 'third']
-    wordlists = ['wordlist_users.txt', 'wordlist_test.txt', 'wordlist_third.txt']
-    nonexistent_string = 'Login page'
-    result_file = 'result.txt'
-    # result_file = None
-    show_log = True
-    # show_log = False
+    # get arguments:
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.usage = 'Help you to brute request parameters by wordlists.'
+    parser.epilog = '''Examples:
+    python getbrute.py "http://site.name/?login=admin&pass=12345" -p login -w wordlist.txt -n "Login page"
+    python getbrute.py "http://site.name/?login=admin&pass=12345" -p login pass -w logins.txt passwords.txt -n "Login page" --showlog'''
+    parser.add_argument('url', type=str,
+                        help='URL to enumerate parameters (required).')
+    parser.add_argument('-p', '--params', nargs='+', required=True,
+                        help='List of enumerated parameters (required).')
+    parser.add_argument('-w', '--wordlists', nargs='+', required=True,
+                        help='List of using wordlists (must match the number of "params" (required).')
+    parser.add_argument('-n', '--nonexistentstring', type=str, required=True,
+                        help='The string missing in the server response, '
+                             'used to determine a successful request (required).')
+    parser.add_argument('-f', '--resultfile', type=str, default='',
+                        help='Result file name.')
+    parser.add_argument('-l', '--showlog', action='store_true',
+                        help='Show working log.')
+    parser.add_argument('-e', '--showerrors', action='store_true',
+                        help='Show request errors.')
+    parser.add_argument('-d', '--errordelaytime', type=int, default=1,
+                        help='Set delay time in seconds after a request error.')
 
+    args = parser.parse_args()
+
+    # configure:
+    Brute.SHOW_QUERIES = args.showlog
+    Brute.SHOW_ERRORS = args.showerrors
+    Brute.ERROR_DELAY_TIME = args.errordelaytime
     # start:
-    set_of_params = list(zip(params, wordlists))
-    if show_log:
-        Brute.SHOW_QUERIES = show_log
     try:
-        parsed_url = UrlPreparation(url=url)
-        parsed_url.check_params(params)
-        new_brute = Brute(parsed_url=parsed_url, nonexistent_string=nonexistent_string, result_file=result_file)
+        set_of_params = list(zip(args.params, args.wordlists))
+        parsed_url = UrlPreparation(url=args.url)
+        parsed_url.check_params(args.params)
+        new_brute = Brute(parsed_url=parsed_url, nonexistent_string=args.nonexistentstring, result_file=args.resultfile)
         count_params = len(set_of_params)
         new_brute.get_brute(set_of_params=set_of_params, count_params=count_params, counter=0)
         print('The result of the bruteforce is:')

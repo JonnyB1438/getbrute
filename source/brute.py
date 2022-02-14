@@ -7,12 +7,14 @@ from source.wordlist import Wordlist
 
 class Brute:
     SHOW_QUERIES = False
+    SHOW_ERRORS = True
+    ERROR_DELAY_TIME = 1
 
     def __init__(self, parsed_url, nonexistent_string, result_file):
         self._parsed_url = parsed_url
         self._nonexistent_string = nonexistent_string
         self._result_file = result_file
-        if self._result_file is not None:
+        if self._result_file != '':
             with open(self._result_file, 'w'):
                 pass
         self.result = []
@@ -21,7 +23,6 @@ class Brute:
 
     def get_brute(self, set_of_params, count_params, counter):
         wordlist = Wordlist(path=set_of_params[counter][1], coding='cp1251', added_ending='')
-        # print(set_of_params[counter])
         for value in wordlist.get_next_word():
             get_url = self._parsed_url.change_param_value(set_of_params[counter][0], value)
             if counter < (count_params - 1):
@@ -45,12 +46,13 @@ class Brute:
                                     file.write(success_string + '\n')
                     except:
                         error_string = f'Error getting URL {get_url}'
-                        print(error_string)
+                        if Brute.SHOW_ERRORS:
+                            print(error_string)
                         loading_attempt -= 1
                         if not loading_attempt:
                             self.result.append(error_string)
                         else:
-                            sleep(1)
+                            sleep(Brute.ERROR_DELAY_TIME)
                     else:
                         loading_attempt = 0
                 self.index += 1
